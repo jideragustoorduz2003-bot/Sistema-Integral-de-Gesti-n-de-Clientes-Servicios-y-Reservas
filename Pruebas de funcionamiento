@@ -1,1 +1,241 @@
+# Pruebas de funcionamiento del sistema
 
+def ejecutar_pruebas():
+
+    sistema = SistemaSoftwareFJ()
+
+    print("\n========== SISTEMA SOFTWARE FJ ==========\n")
+
+    # Operación 1: registrar cliente válido
+    cliente1 = Cliente(
+        "C001",
+        "Laura Gómez",
+        "laura@gmail.com",
+        "3001234567"
+    )
+
+    sistema.registrar_cliente(cliente1)
+
+    # Operación 2: registrar otro cliente
+    cliente2 = Cliente(
+        "C002",
+        "Carlos Pérez",
+        "carlos@gmail.com",
+        "3107654321"
+    )
+
+    sistema.registrar_cliente(cliente2)
+
+    # Operación 3: intentar registrar cliente inválido
+    try:
+
+        cliente_invalido = Cliente(
+            "C003",
+            "Ana Ruiz",
+            "correo-invalido",
+            "3001112233"
+        )
+
+        sistema.registrar_cliente(cliente_invalido)
+
+    except DatosInvalidosError as error:
+
+        logging.error(
+            "Registro inválido de cliente: %s",
+            error
+        )
+
+        print(f"Error controlado de cliente: {error}")
+
+    # Operación 4: registrar una sala
+    sala = ReservaSala(
+        "S001",
+        50000,
+        12
+    )
+
+    sistema.registrar_servicio(sala)
+
+    # Operación 5: registrar un equipo
+    equipo = AlquilerEquipo(
+        "E001",
+        80000,
+        "Video beam"
+    )
+
+    sistema.registrar_servicio(equipo)
+
+    # Operación 6: registrar una asesoría
+    asesoria = Asesoria(
+        "A001",
+        60000,
+        "desarrollo de software"
+    )
+
+    sistema.registrar_servicio(asesoria)
+
+    # Operación 7: intentar crear servicio inválido
+    try:
+
+        servicio_invalido = ReservaSala(
+            "S002",
+            -10000,
+            10
+        )
+
+        sistema.registrar_servicio(servicio_invalido)
+
+    except DatosInvalidosError as error:
+
+        logging.error(
+            "Creación inválida de servicio: %s",
+            error
+        )
+
+        print(f"Error controlado de servicio: {error}")
+
+    # Operación 8: crear una reserva correcta
+    reserva1 = sistema.crear_reserva(
+        "R001",
+        cliente1,
+        sala,
+        2
+    )
+
+    # Operación 9: confirmar y procesar reserva
+    if reserva1:
+
+        try:
+
+            reserva1.confirmar()
+
+            print(reserva1.procesar())
+
+        except ErrorSistema as error:
+
+            print(f"No se pudo procesar: {error}")
+
+    # Operación 10: reservar alquiler de equipo
+    reserva2 = sistema.crear_reserva(
+        "R002",
+        cliente2,
+        equipo,
+        3
+    )
+
+    # Operación 11: reserva con duración incorrecta
+    sistema.crear_reserva(
+        "R003",
+        cliente1,
+        asesoria,
+        15
+    )
+
+    # Operación 12: servicio no disponible
+    sala.cambiar_disponibilidad(False)
+
+    sistema.crear_reserva(
+        "R004",
+        cliente2,
+        sala,
+        1
+    )
+
+    # Operación 13: cancelar una reserva
+    if reserva2:
+
+        try:
+
+            reserva2.cancelar()
+
+            print("La reserva R002 fue cancelada.")
+
+        except ErrorSistema as error:
+
+            logging.error(
+                "Error al cancelar reserva: %s",
+                error
+            )
+
+            print(f"No se pudo cancelar: {error}")
+
+    # Operación 14: intentar procesar reserva cancelada
+    if reserva2:
+
+        try:
+
+            print(reserva2.procesar())
+
+        except ReservaError as error:
+
+            print(f"Procesamiento controlado: {error}")
+
+    # Operación 15: calcular costo con descuento e impuesto
+    try:
+
+        total_especial = equipo.calcular_costo(
+            2,
+            descuento=10,
+            impuesto=19
+        )
+
+        print(
+            f"Costo de 2 días con descuento e impuesto: "
+            f"${total_especial:,.2f}"
+        )
+
+    except DatosInvalidosError as error:
+
+        print(f"Error en el cálculo: {error}")
+
+    # Ejemplo de try, except, else y finally
+    try:
+
+        duracion_prueba = 2
+
+        if duracion_prueba <= 0:
+
+            raise DatosInvalidosError(
+                "La duración debe ser positiva."
+            )
+
+    except DatosInvalidosError as error:
+
+        logging.error(
+            "Validación de duración: %s",
+            error
+        )
+
+    else:
+
+        print("Validación adicional: la duración es correcta.")
+
+    finally:
+
+        print("Finalizó la validación adicional.")
+
+    # Mostrar resultados
+    print("\n========== CLIENTES REGISTRADOS ==========")
+
+    sistema.listar_clientes()
+
+    print("\n========== SERVICIOS REGISTRADOS ==========")
+
+    sistema.listar_servicios()
+
+    print("\n========== RESERVAS REGISTRADAS ==========")
+
+    sistema.listar_reservas()
+
+    print("\nEl programa terminó correctamente.")
+
+    print(
+        "Los eventos y errores quedaron registrados "
+        "en software_fj.log."
+    )
+
+
+# Ejecutar el programa
+if __name__ == "__main__":
+
+    ejecutar_pruebas()
