@@ -1,1 +1,97 @@
+# Servicio de reserva de salas
 
+class ReservaSala(Servicio):
+
+    def __init__(self, identificador, tarifa_hora, capacidad):
+
+        super().__init__(
+            identificador,
+            "Reserva de sala",
+            tarifa_hora
+        )
+
+        if not isinstance(capacidad, int) or capacidad <= 0:
+            raise DatosInvalidosError(
+                "La capacidad debe ser un entero positivo."
+            )
+
+        self.capacidad = capacidad
+
+    def validar_parametros(self, duracion):
+
+        if duracion > 12:
+            raise DatosInvalidosError(
+                "La sala no se puede reservar por más de 12 horas."
+            )
+
+        return True
+
+    def describir_servicio(self):
+        return (
+            f"Sala para reuniones con capacidad "
+            f"para {self.capacidad} personas."
+        )
+
+
+# Servicio de alquiler de equipos
+
+class AlquilerEquipo(Servicio):
+
+    def __init__(self, identificador, tarifa_dia, tipo_equipo):
+
+        super().__init__(
+            identificador,
+            "Alquiler de equipos",
+            tarifa_dia
+        )
+
+        if not isinstance(tipo_equipo, str) or not tipo_equipo.strip():
+            raise DatosInvalidosError(
+                "Debe indicar el tipo de equipo."
+            )
+
+        self.tipo_equipo = tipo_equipo.strip()
+
+    def validar_parametros(self, duracion):
+
+        if duracion > 30:
+            raise DatosInvalidosError(
+                "El alquiler no puede superar 30 días."
+            )
+
+        return True
+
+    def describir_servicio(self):
+        return f"Alquiler de equipo: {self.tipo_equipo}."
+
+
+# Servicio de asesorías especializadas
+
+class Asesoria(Servicio):
+
+    def __init__(self, identificador, tarifa_hora, especialidad):
+
+        super().__init__(
+            identificador,
+            "Asesoría especializada",
+            tarifa_hora
+        )
+
+        if not isinstance(especialidad, str) or not especialidad.strip():
+            raise DatosInvalidosError(
+                "Debe indicar la especialidad."
+            )
+
+        self.especialidad = especialidad.strip()
+
+    def validar_parametros(self, duracion):
+
+        if duracion > 8:
+            raise DatosInvalidosError(
+                "La asesoría no puede superar 8 horas."
+            )
+
+        return True
+
+    def describir_servicio(self):
+        return f"Asesoría profesional en {self.especialidad}."
