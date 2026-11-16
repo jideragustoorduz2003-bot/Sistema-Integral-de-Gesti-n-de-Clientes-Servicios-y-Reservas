@@ -1,1 +1,83 @@
+# Clase abstracta Servicio
 
+class Servicio(Entidad, ABC):
+
+    def __init__(self, identificador, nombre, tarifa_base):
+        super().__init__(identificador)
+
+        if not isinstance(nombre, str) or not nombre.strip():
+            raise DatosInvalidosError(
+                "El nombre del servicio es obligatorio."
+            )
+
+        if not isinstance(tarifa_base, (int, float)) or tarifa_base <= 0:
+            raise DatosInvalidosError(
+                "La tarifa debe ser mayor que cero."
+            )
+
+        self._nombre = nombre.strip()
+        self._tarifa_base = float(tarifa_base)
+        self._disponible = True
+
+    @property
+    def nombre(self):
+        return self._nombre
+
+    @property
+    def disponible(self):
+        return self._disponible
+
+    def cambiar_disponibilidad(self, estado):
+        if not isinstance(estado, bool):
+            raise DatosInvalidosError(
+                "La disponibilidad debe ser True o False."
+            )
+
+        self._disponible = estado
+
+    # Cálculo de costos con parámetros opcionales
+    def calcular_costo(self, duracion, descuento=0, impuesto=0):
+
+        if not isinstance(duracion, (int, float)) or duracion <= 0:
+            raise DatosInvalidosError(
+                "La duración debe ser mayor que cero."
+            )
+
+        if not 0 <= descuento <= 100:
+            raise DatosInvalidosError(
+                "El descuento debe estar entre 0 y 100."
+            )
+
+        if not 0 <= impuesto <= 100:
+            raise DatosInvalidosError(
+                "El impuesto debe estar entre 0 y 100."
+            )
+
+        subtotal = self._tarifa_base * duracion
+
+        valor_descuento = subtotal * (descuento / 100)
+
+        subtotal_con_descuento = subtotal - valor_descuento
+
+        total = subtotal_con_descuento * (1 + impuesto / 100)
+
+        return round(total, 2)
+
+    @abstractmethod
+    def validar_parametros(self, duracion):
+        pass
+
+    @abstractmethod
+    def describir_servicio(self):
+        pass
+
+    def mostrar_informacion(self):
+
+        estado = "Disponible" if self._disponible else "No disponible"
+
+        return (
+            f"{self._nombre} | "
+            f"ID: {self.identificador} | "
+            f"Tarifa base: ${self._tarifa_base:,.2f} | "
+            f"{estado}"
+        )
