@@ -1,1 +1,115 @@
+# Clase Reserva
 
+class Reserva(Entidad):
+
+    def __init__(self, identificador, cliente, servicio, duracion):
+
+        super().__init__(identificador)
+
+        if not isinstance(cliente, Cliente):
+            raise DatosInvalidosError(
+                "La reserva debe tener un cliente válido."
+            )
+
+        if not isinstance(servicio, Servicio):
+            raise DatosInvalidosError(
+                "La reserva debe tener un servicio válido."
+            )
+
+        servicio.validar_parametros(duracion)
+
+        if not servicio.disponible:
+            raise ServicioNoDisponibleError(
+                "El servicio seleccionado no está disponible."
+            )
+
+        self.cliente = cliente
+        self.servicio = servicio
+        self.duracion = duracion
+        self.estado = "Pendiente"
+
+        self.costo = servicio.calcular_costo(duracion)
+
+    # Confirmar una reserva
+    def confirmar(self):
+
+        if self.estado != "Pendiente":
+            raise OperacionNoPermitidaError(
+                "Solo se pueden confirmar reservas pendientes."
+            )
+
+        if not self.servicio.disponible:
+            raise ServicioNoDisponibleError(
+                "El servicio dejó de estar disponible."
+            )
+
+        self.estado = "Confirmada"
+
+        logging.info(
+            "Reserva %s confirmada.",
+            self.identificador
+        )
+
+    # Cancelar una reserva
+    def cancelar(self):
+
+        if self.estado == "Cancelada":
+            raise OperacionNoPermitidaError(
+                "La reserva ya está cancelada."
+            )
+
+        self.estado = "Cancelada"
+
+        logging.info(
+            "Reserva %s cancelada.",
+            self.identificador
+        )
+
+    # Procesar una reserva
+    def procesar(self):
+
+        try:
+
+            if self.estado != "Confirmada":
+                raise ReservaError(
+                    "La reserva debe estar confirmada para procesarse."
+                )
+
+            logging.info(
+                "Reserva %s procesada correctamente.",
+                self.identificador
+            )
+
+            return (
+                f"Reserva {self.identificador} procesada. "
+                f"Total: ${self.costo:,.2f}"
+            )
+
+        except ReservaError as error:
+
+            logging.error(
+                "No se pudo procesar la reserva %s: %s",
+                self.identificador,
+                error
+            )
+
+            raise
+
+        finally:
+
+            logging.info(
+                "Finalizó el intento de procesamiento de la reserva %s.",
+                self.identificador
+            )
+
+    # Mostrar información de la reserva
+    def mostrar_informacion(self):
+
+        return (
+            f"Reserva: {self.identificador} | "
+            f"Cliente: {self.cliente.nombre} | "
+            f"Servicio: {self.servicio.nombre} | "
+            f"Duración: {self.duracion} | "
+            f"Estado: {self.estado} | "
+            f"Total: ${self.costo:,.2f}"
+        )
