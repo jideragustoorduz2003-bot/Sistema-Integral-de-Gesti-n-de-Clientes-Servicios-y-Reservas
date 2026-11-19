@@ -1,0 +1,172 @@
+class Servicio:
+    def __init__(self, nombre, descripcion, tarifa_hora):
+        self.nombre = nombre
+        self.descripcion = descripcion
+        self.tarifa_hora = tarifa_hora
+
+
+class Sala:
+    def __init__(self, codigo, servicio):
+        self.codigo = codigo
+        self.servicio = servicio
+
+
+# Combos y tarifas de ejemplo en pesos colombianos
+servicios = {
+    "1": Servicio(
+        "Sala de reuniones",
+        "Mesa ejecutiva, sillas, proyector y videoconferencia",
+        100_000
+    ),
+    "2": Servicio(
+        "Sala Coworking",
+        "Cubículos, escritorios, sillas, computadores e internet",
+        120_000
+    ),
+    "3": Servicio(
+        "Laboratorio de Desarrollo",
+        "Computadores de alto rendimiento, software y fibra óptica",
+        180_000
+    ),
+    "4": Servicio(
+        "Sala Scrum",
+        "Mesa de trabajo, sillas móviles y pantalla interactiva",
+        130_000
+    ),
+    "5": Servicio(
+        "Auditorio Tech",
+        "Sillas, escenario, sonido y proyección",
+        300_000
+    ),
+}
+
+# Hay 10 salas en total, con su propio código
+salas = [
+    Sala("R1", servicios["1"]),
+    Sala("R2", servicios["1"]),
+    Sala("R3", servicios["1"]),
+    Sala("C1", servicios["2"]),
+    Sala("C2", servicios["2"]),
+    Sala("L1", servicios["3"]),
+    Sala("L2", servicios["3"]),
+    Sala("S1", servicios["4"]),
+    Sala("S2", servicios["4"]),
+    Sala("A1", servicios["5"]),
+]
+
+
+def pedir_texto(mensaje):
+    while True:
+        dato = input(mensaje).strip()
+        if dato:
+            return dato
+        print("Este dato no puede quedar vacío.")
+
+
+def elegir_sala():
+    print("\n--- SALAS DISPONIBLES ---")
+    for sala in salas:
+        print(
+            f"{sala.codigo} | {sala.servicio.nombre} | "
+            f"${sala.servicio.tarifa_hora:,.0f} por hora"
+        )
+        print(f"   Incluye: {sala.servicio.descripcion}")
+
+    while True:
+        codigo = input("\nEscribe el código de la sala: ").strip().upper()
+        sala_elegida = next(
+            (sala for sala in salas if sala.codigo == codigo),
+            None
+        )
+
+        if sala_elegida:
+            return sala_elegida
+
+        print("Ese código no existe. Intenta de nuevo.")
+
+
+def crear_reserva():
+    print("\n--- DATOS DEL CLIENTE ---")
+    cliente = {
+        "nombre": pedir_texto("Nombre completo: "),
+        "documento": pedir_texto("Documento: "),
+        "telefono": pedir_texto("Teléfono: "),
+        "correo": pedir_texto("Correo electrónico: "),
+    }
+
+    sala = elegir_sala()
+
+    while True:
+        try:
+            horas = float(input("Cantidad de horas que desea reservar: "))
+            if horas > 0:
+                break
+            print("Las horas deben ser mayores que cero.")
+        except ValueError:
+            print("Escribe una cantidad válida de horas.")
+
+    total = sala.servicio.tarifa_hora * horas
+
+    return {
+        "cliente": cliente,
+        "sala": sala,
+        "horas": horas,
+        "total": total,
+    }
+
+
+def mostrar_vaucher(reserva):
+    cliente = reserva["cliente"]
+    sala = reserva["sala"]
+
+    print("\n========== VAUCHER DE RESERVA ==========")
+    print(f"Cliente:       {cliente['nombre']}")
+    print(f"Documento:     {cliente['documento']}")
+    print(f"Teléfono:      {cliente['telefono']}")
+    print(f"Correo:        {cliente['correo']}")
+    print("-----------------------------------------")
+    print(f"Sala:          {sala.codigo} - {sala.servicio.nombre}")
+    print(f"Combo incluye: {sala.servicio.descripcion}")
+    print(f"Duración:      {reserva['horas']:g} hora(s)")
+    print(f"Tarifa:        ${sala.servicio.tarifa_hora:,.0f} por hora")
+    print(f"TOTAL:         ${reserva['total']:,.0f} COP")
+    print("=========================================")
+
+
+def main():
+    reserva = None
+
+    while True:
+        if reserva is None:
+            print("\n--- NUEVA RESERVA ---")
+            reserva = crear_reserva()
+            mostrar_vaucher(reserva)
+
+        print("\n¿Qué deseas hacer?")
+        print("1. Cambiar la reserva")
+        print("2. Borrar la reserva")
+        print("3. Salir")
+
+        opcion = input("Elige una opción: ").strip()
+
+        if opcion == "1":
+            print("\nSe reemplazará la reserva actual.")
+            reserva = crear_reserva()
+            mostrar_vaucher(reserva)
+
+        elif opcion == "2":
+            reserva = None
+            print("Reserva borrada.")
+            # El ciclo permite ingresar una reserva nueva.
+
+        elif opcion == "3":
+            print("Programa finalizado.")
+            break
+
+        else:
+            print("Opción no válida. Elige 1, 2 o 3.")
+
+
+if __name__ == "__main__":l2
+
+    main()
